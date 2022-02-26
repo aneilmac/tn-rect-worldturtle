@@ -4,26 +4,19 @@ import Graphics.WorldTurtle
 import qualified Graphics.Gloss.Data.Picture as G
 import Control.Monad
 
--- | Gathers list of all permutations of rectangle widths/heights. Going from:
--- | `(1, 1), (1, 2), ...` all the way up to `(maxWidth, maxHeight)`.
--- | E.g. for `maxWidth=1` and `maxHeight=3`, we will produce a list of 3 values:
--- | @[(1,1),(1,2),(1,3)]@.
-rectanglePermutations :: Int -> Int -> [(Int, Int)]
-rectanglePermutations maxWidth maxHeight = [(x, y) | y  <- [1..maxHeight], x  <- [1..maxWidth]]
-
 -- | Gather list of all rectangles that can fit in the grid of size `col x rows`.
 -- | Each element is a tuple of the form (x, y, rectangleWidth, rectangleHeight).
 -- | E.g., for a `1 x 3` grid, this will produce a list of 6 values:
 -- | @[(0,0,1,1),(0,1,1,1),(0,2,1,1),(0,0,1,2),(0,1,1,2),(0,0,1,3)]@
 positionPermutations :: Int -> Int -> [(Int, Int, Int, Int)]
-positionPermutations cols rows = 
-    let rectangles = rectanglePermutations cols rows
-     in [(x, y, width, height) | (width, height) <- rectangles -- all rectangle types
-                               , y <- [0..rows] -- all y positions
-                               , x <- [0..cols] -- all x positions  
-                               , x + width <= cols -- filter rectangles: fit board width
-                               , y + height <= rows -- filter rectangles: fit board height
-                               ]
+positionPermutations cols rows = [ (x, y, width, height) 
+                                 | height <- [1..rows] -- all heights
+                                 , y <- [0..rows] -- all y positions
+                                 , width <- [1..cols] -- all widths
+                                 , x <- [0..cols] -- all x positions  
+                                 , x + width <= cols -- filter rectangles: fit board width
+                                 , y + height <= rows -- filter rectangles: fit board height
+                                 ]
 
 main :: IO ()
 main = do 

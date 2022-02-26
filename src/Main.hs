@@ -35,9 +35,6 @@ main = do
         -- Give turtle instant turns
         setRotationSpeed 0
 
-        -- Draw background grid
-        drawGrid cols rows
-
         -- Set initial pen color and draw speed.
         setPenColor cyan
         setSpeed 300
@@ -49,6 +46,9 @@ main = do
 
             -- Change turtle's color to match pen color.
             penColor >>= \c -> setRepresentation (G.color c $ G.circleSolid 10)
+
+            -- Draw background grid
+            drawGrid cols rows
 
              -- Draw this rectangle permutation.
             branch $ drawRectangle rectangle

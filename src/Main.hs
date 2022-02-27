@@ -27,24 +27,17 @@ main = do
     runTurtle $ do
         -- Give turtle instant turns
         setRotationSpeed 0
-
-        -- Set initial pen color and draw speed.
-        setPenColor cyan
+        -- Set initial pen size and draw speed.
+        setPenSize 5
         setSpeed 300
-        
         -- Draw all rectangle permutations
         forM_ (positionPermutations cols rows) $ \ rectangle -> do
-            -- Change pen color for next rectangle.
-            penColor >>= setPenColor . shiftHue 149
-
-            -- Change turtle's color to match pen color.
-            penColor >>= \c -> setRepresentation (G.color c $ G.circleSolid 10)
-
             -- Draw background grid
             drawGrid cols rows
-
              -- Draw this rectangle permutation.
             branch $ drawRectangle rectangle
+        -- hide turtle at the end
+        setVisible False
 
 -- Side of 1 square in the grid (for drawing purposes).
 sideLength :: Float
@@ -54,19 +47,26 @@ sideLength = 50
 -- of size `width x height`, at position @(x, y)@.
 drawRectangle:: (Int, Int, Int, Int) -> TurtleCommand ()
 drawRectangle (x, y, width, height) = do
+    -- Change pen color for next rectangle to match the gattengo color
+    -- for a given width.
+    setPenColor $ gattegnoColors !! (width - 1)
+    -- Change turtle's color to match pen color.
+    penColor >>= \c -> setRepresentation (G.color c $ G.circleSolid 10)
     -- Jump to (x, y) coordinate
     setPenDown False
     goto (sideLength * fromIntegral x, sideLength * fromIntegral y)
     -- Draw rectangle of size (width, height)
     setPenDown True
-    setHeading east 
-    forward $ sideLength * fromIntegral width
+    setHeading east
+    let w = sideLength * fromIntegral width 
+    let h = sideLength * fromIntegral height
+    forward w
     setHeading north
-    forward $ sideLength * fromIntegral height
+    forward h
     setHeading west
-    forward $ sideLength * fromIntegral width
+    forward w
     setHeading south
-    forward $ sideLength * fromIntegral height   
+    forward h 
 
 -- Draws the `cols x rows` grid onto the screen.
 drawGrid :: Int -> Int -> TurtleCommand ()
@@ -92,3 +92,26 @@ drawGrid cols rows = branch $ do
                 setPenDown True
                 forward $ sideLength * fromIntegral cols
             goto (0, sideLength * fromIntegral y)
+
+-- | Color values use for rectangle drawing.
+offWhite, lightGreen, purple, darkGreen, brown :: Color
+offWhite = makeColorI 163 191 186 255
+lightGreen = makeColorI 144 238 144 255
+purple = makeColorI 128 0 128 255
+darkGreen = makeColorI 1 50 32 255
+brown = makeColorI 210 180 140 255
+
+-- Color values associated with a specific index.
+gattegnoColors  :: [Color]
+gattegnoColors = cycle
+               [ offWhite -- rods of length 1 are white
+               , red -- length 2 are red
+               , lightGreen -- 3, light green
+               , purple -- 4
+               , yellow -- 5
+               , darkGreen -- 6
+               , black -- 7
+               , brown -- 8
+               , blue -- 9
+               , orange -- 10
+               ] --- .... and cycle rod colors if we grow beyond this.
